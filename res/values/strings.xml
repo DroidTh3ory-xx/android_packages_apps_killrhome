@@ -316,19 +316,23 @@ s -->
     <string name="preferences_interface_homescreen_general_grid_summary">Choose the number of rows/columns on the homescreen</string>
     <string name="preferences_interface_homescreen_general_grid_rows_title">Rows</string>
     <string name="preferences_interface_homescreen_general_grid_columns_title">Columns</string>
-    <string name="preferences_interface_homescreen_general_screen_padding_vertical_title">Vertical padding</string>
-    <string name="preferences_interface_homescreen_general_screen_padding_vertical_summary">Extra vertical spacing on the homescreen</string>
-    <string name="preferences_interface_homescreen_general_screen_padding_horizontal_title">Horizontal padding</string>
-    <string name="preferences_interface_homescreen_general_screen_padding_horizontal_summary">Extra horizontal spacing on the homescreen</string>
+    <string name="preferences_interface_homescreen_general_stretch_screens_title">Stretch screens</string>
+    <string name="preferences_interface_homescreen_general_stretch_screens_summary">Expand homescreens to fill the size of display</string>
     <string name="preferences_interface_homescreen_general_resize_any_widget_title">Resize any widget</string>
     <string name="preferences_interface_homescreen_general_resize_any_widget_summary">Allow resizing of widgets that normally aren\'t resizeable</string>
     <string name="preferences_interface_homescreen_general_hide_icon_labels_title">Hide icon labels</string>
     <string name="preferences_interface_homescreen_general_hide_icon_labels_summary">Hide homescreen icon labels</string>
     <string name="preferences_interface_homescreen_scrolling_category">Scrolling</string>
+    <string name="preferences_interface_homescreen_scrolling_transition_effect_title">Transition effect</string>
+    <string name="preferences_interface_homescreen_scrolling_transition_effect_summary">Scrolling effect when scrolling homescreens</string>
     <string name="preferences_interface_homescreen_scrolling_scroll_wallpaper_title">Scroll wallpaper</string>
     <string name="preferences_interface_homescreen_scrolling_scroll_wallpaper_summary">Scroll wallpaper when scrolling homescreens</string>
     <string name="preferences_interface_homescreen_scrolling_wallpaper_hack_title">Wallpaper quick render</string>
     <string name="preferences_interface_homescreen_scrolling_wallpaper_hack_summary">Use wallpaper hack that increases smoothness on static image wallpapers</string>
+    <string name="preferences_interface_homescreen_scrolling_fade_adjacent_screens_title">Fade side screens</string>
+    <string name="preferences_interface_homescreen_scrolling_fade_adjacent_screens_summary">Fade the side screens when scrolling homescreens</string>
+    <string name="preferences_interface_homescreen_scrolling_show_outlines_title">Show outlines</string>
+    <string name="preferences_interface_homescreen_scrolling_show_outlines_summary">Show screen outlines when scrolling homescreens</string>
     <string name="preferences_interface_homescreen_indicator_category">Indicator</string>
     <string name="preferences_interface_homescreen_indicator_enable_title">Show page indicator</string>
     <string name="preferences_interface_homescreen_indicator_enable_summary">Show current page indicator at the bottom of the screen</string>
@@ -339,9 +343,16 @@ s -->
 
     <!-- Drawer -->
     <string name="preferences_interface_drawer_title">App Drawer</string>
+    <string name="preferences_interface_drawer_orientation_title">Orientation</string>
+    <string name="preferences_interface_drawer_orientation_summary">Choose which way the drawer scrolls</string>
     <string name="preferences_interface_drawer_widgets_category">Widgets</string>
     <string name="preferences_interface_drawer_widgets_join_apps_title">Join with apps</string>
     <string name="preferences_interface_drawer_widgets_join_apps_summary">Swipe from apps drawer to widgets drawer without changing tabs</string>
+    <string name="preferences_interface_drawer_scrolling_category">Scrolling</string>
+    <string name="preferences_interface_drawer_scrolling_transition_effect_title">Transition effect</string>
+    <string name="preferences_interface_drawer_scrolling_transition_effect_summary">Scrolling effect when scrolling screens</string>
+    <string name="preferences_interface_drawer_scrolling_fade_adjacent_screens_title">Fade side pages</string>
+    <string name="preferences_interface_drawer_scrolling_fade_adjacent_screens_summary">Fade the side pages when scrolling screens</string>
     <string name="preferences_interface_drawer_indicator_category">Indicator</string>
     <string name="preferences_interface_drawer_indicator_enable_title">Show page indicator</string>
     <string name="preferences_interface_drawer_indicator_enable_summary">Show current page indicator at the bottom of the screen</string>
