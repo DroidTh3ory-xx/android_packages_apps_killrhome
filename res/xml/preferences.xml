@@ -15,9 +15,10 @@
 -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+        android:title="@string/preferences_interface_homescreen_title"
         xmlns:launcher="http://schemas.android.com/apk/res/com.cyanogenmod.trebuchet">
     <!-- UI -->
-    <PreferenceCategory android:title="@string/preferences_interface_title">
+    <PreferenceCategory android:title="@string/application_name">
         <!-- Homescreen -->
         <PreferenceScreen android:key="ui_homescreen"
             android:title="@string/preferences_interface_homescreen_title">
