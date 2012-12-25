@@ -58,7 +58,7 @@ import java.util.Comparator;
 public class Folder extends LinearLayout implements DragSource, View.OnClickListener,
         View.OnLongClickListener, DropTarget, FolderListener, TextView.OnEditorActionListener,
         View.OnFocusChangeListener {
-    private static final String TAG = "Launcher.Folder";
+    private static final String TAG = "Trebuchet.Folder";
 
     protected DragController mDragController;
     protected Launcher mLauncher;
@@ -173,6 +173,11 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         mFolderName.setSelectAllOnFocus(true);
         mFolderName.setInputType(mFolderName.getInputType() |
                 InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+
+        if (PreferencesProvider.Interface.Homescreen.getHideIconLabels()){
+            mFolderName.setVisibility(View.GONE);
+            mFolderNameHeight = getPaddingBottom();
+        }
     }
 
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
@@ -255,7 +260,9 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         // Convert to a string here to ensure that no other state associated with the text field
         // gets saved.
         String newTitle = mFolderName.getText().toString();
-        mInfo.setTitle(newTitle);        
+        if (!PreferencesProvider.Interface.Homescreen.getHideIconLabels()) {
+            mInfo.setTitle(newTitle);
+        }
         LauncherModel.updateItemInDatabase(mLauncher, mInfo);
 
         if (commit) {

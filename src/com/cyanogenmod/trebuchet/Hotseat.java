@@ -24,26 +24,19 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.FrameLayout;
 
-import com.cyanogenmod.trebuchet.R;
+import com.cyanogenmod.trebuchet.preference.PreferencesProvider;
 
-public class Hotseat extends FrameLayout {
-    @SuppressWarnings("unused")
-    private static final String TAG = "Hotseat";
-
+public class Hotseat extends PagedView {
     private Launcher mLauncher;
     private CellLayout mContent;
 
-    private int mCellCountX;
-    private int mCellCountY;
-    private int mAllAppsButtonRank;
+    private int mCellCount;
 
     private boolean mTransposeLayoutWithOrientation;
     private boolean mIsLandscape;
 
-    private static final int DEFAULT_CELL_COUNT_X = 5;
-    private static final int DEFAULT_CELL_COUNT_Y = 1;
+    private static final int DEFAULT_CELL_COUNT = 5;
 
     public Hotseat(Context context) {
         this(context, null);
@@ -56,16 +49,40 @@ public class Hotseat extends FrameLayout {
     public Hotseat(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
+        mFadeInAdjacentScreens = false;
+        mHandleScrollIndicator = true;
+
+        int hotseatPages = PreferencesProvider.Interface.Dock.getNumberPages();
+        int defaultPage = PreferencesProvider.Interface.Dock.getDefaultPage(hotseatPages / 2);
+
+
+        mCurrentPage = defaultPage;
+
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.Hotseat, defStyle, 0);
-        Resources r = context.getResources();
-        mCellCountX = a.getInt(R.styleable.Hotseat_cellCountX, -1);
-        mCellCountY = a.getInt(R.styleable.Hotseat_cellCountY, -1);
-        mAllAppsButtonRank = r.getInteger(R.integer.hotseat_all_apps_index);
-        mTransposeLayoutWithOrientation = 
-                r.getBoolean(R.bool.hotseat_transpose_layout_with_orientation);
+        mTransposeLayoutWithOrientation =
+                context.getResources().getBoolean(R.bool.hotseat_transpose_layout_with_orientation);
         mIsLandscape = context.getResources().getConfiguration().orientation ==
             Configuration.ORIENTATION_LANDSCAPE;
+        mCellCount = a.getInt(R.styleable.Hotseat_cellCount, DEFAULT_CELL_COUNT);
+        int cellCount = PreferencesProvider.Interface.Dock.getNumberIcons(0);
+        if (cellCount > 0) {
+            mCellCount = cellCount;
+        }
+
+        mVertical = hasVerticalHotseat();
+
+        LayoutInflater inflater =
+                (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        for (int i = 0; i < hotseatPages; i++) {
+            CellLayout cl = (CellLayout) inflater.inflate(R.layout.hotseat_page, null);
+            cl.setIsHotseat(true);
+            cl.setGridSize((!mIsLandscape ? mCellCount : 1), (mIsLandscape ? mCellCount : 1));
+            addView(cl);
+        }
+
+        // No data needed
+        setDataIsReady();
     }
 
     public void setup(Launcher launcher) {
@@ -74,7 +91,16 @@ public class Hotseat extends FrameLayout {
     }
 
     CellLayout getLayout() {
-        return mContent;
+        return (CellLayout) getPageAt(mCurrentPage);
+    }
+
+    public boolean hasPage(View view) {
+        for (int i = 0; i < getChildCount(); i++) {
+            if (view == getChildAt(i)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean hasVerticalHotseat() {
@@ -83,68 +109,44 @@ public class Hotseat extends FrameLayout {
 
     /* Get the orientation invariant order of the item in the hotseat for persistence. */
     int getOrderInHotseat(int x, int y) {
-        return hasVerticalHotseat() ? (mContent.getCountY() - y - 1) : x;
+        return hasVerticalHotseat() ? (mCellCount - y - 1) : x;
     }
     /* Get the orientation specific coordinates given an invariant order in the hotseat. */
     int getCellXFromOrder(int rank) {
         return hasVerticalHotseat() ? 0 : rank;
     }
     int getCellYFromOrder(int rank) {
-        return hasVerticalHotseat() ? (mContent.getCountY() - (rank + 1)) : 0;
+        return hasVerticalHotseat() ? (mCellCount - rank - 1) : 0;
     }
-    public boolean isAllAppsButtonRank(int rank) {
-        return rank == mAllAppsButtonRank;
+    int getScreenFromOrder(int screen) {
+        return hasVerticalHotseat() ? (getChildCount() - screen - 1) : screen;
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        if (mCellCountX < 0) mCellCountX = DEFAULT_CELL_COUNT_X;
-        if (mCellCountY < 0) mCellCountY = DEFAULT_CELL_COUNT_Y;
-        mContent = (CellLayout) findViewById(R.id.layout);
-        mContent.setGridSize(mCellCountX, mCellCountY);
-        mContent.setIsHotseat(true);
-
         resetLayout();
     }
 
     void resetLayout() {
-        mContent.removeAllViewsInLayout();
+        for (int i = 0; i < getChildCount(); i++) {
+            CellLayout cl = (CellLayout) getPageAt(i);
+            cl.removeAllViewsInLayout();
+        }
+    }
 
-        // Add the Apps button
-        Context context = getContext();
-        LayoutInflater inflater = LayoutInflater.from(context);
-        BubbleTextView allAppsButton = (BubbleTextView)
-                inflater.inflate(R.layout.application, mContent, false);
-        allAppsButton.setCompoundDrawablesWithIntrinsicBounds(null,
-                context.getResources().getDrawable(R.drawable.all_apps_button_icon), null, null);
-        allAppsButton.setContentDescription(context.getString(R.string.all_apps_button_label));
-        allAppsButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (mLauncher != null &&
-                    (event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
-                    mLauncher.onTouchDownAllAppsButton(v);
-                }
-                return false;
-            }
-        });
+    @Override
+    public void syncPages() {
+    }
 
-        allAppsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(android.view.View v) {
-                if (mLauncher != null) {
-                    mLauncher.onClickAllAppsButton(v);
-                }
-            }
-        });
+    @Override
+    public void syncPageItems(int page, boolean immediate) {
+    }
 
-        // Note: We do this to ensure that the hotseat is always laid out in the orientation of
-        // the hotseat in order regardless of which orientation they were added
-        int x = getCellXFromOrder(mAllAppsButtonRank);
-        int y = getCellYFromOrder(mAllAppsButtonRank);
-        CellLayout.LayoutParams lp = new CellLayout.LayoutParams(x,y,1,1);
-        lp.canReorder = false;
-        mContent.addViewToCellLayout(allAppsButton, -1, 0, lp, true);
+    @Override
+    protected void loadAssociatedPages(int page) {
+    }
+    @Override
+    protected void loadAssociatedPages(int page, boolean immediateAndOnly) {
     }
 }

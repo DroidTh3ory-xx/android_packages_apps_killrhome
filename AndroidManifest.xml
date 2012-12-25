@@ -78,6 +78,7 @@
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="com.cyanogenmod.trebuchet.LAUNCHER_ACTION" />
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.MONKEY"/>
@@ -115,6 +116,10 @@
                 <category android:name="com.cyanogenmod.category.LAUNCHER_PREFERENCES" />
             </intent-filter>
         </activity>
+
+        <activity android:name="com.cyanogenmod.trebuchet.preference.HiddenAppsActivity"
+            android:label="@string/hidden_apps_title"/>
+
         <!-- Intent received used to install shortcuts from other applications -->
         <receiver
             android:name="com.cyanogenmod.trebuchet.InstallShortcutReceiver"

@@ -61,12 +61,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LauncherProvider extends ContentProvider {
-    private static final String TAG = "Launcher.LauncherProvider";
+    private static final String TAG = "Trebuchet.LauncherProvider";
     private static final boolean LOGD = false;
 
     private static final String DATABASE_NAME = "launcher.db";
 
-    private static final int DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 13;
 
     static final String AUTHORITY = "com.cyanogenmod.trebuchet.settings";
 
@@ -480,18 +480,6 @@ public class LauncherProvider extends ContentProvider {
                 version = 8;
             }
 
-            if (version < 9) {
-                // The max id is not yet set at this point (onUpgrade is triggered in the ctor
-                // before it gets a change to get set, so we need to read it here when we use it)
-                if (mMaxId == -1) {
-                    mMaxId = initializeMaxId(db);
-                }
-
-                // Add default hotseat icons
-                loadFavorites(db, R.xml.update_workspace);
-                version = 9;
-            }
-
             // We bumped the version three time during JB, once to update the launch flags, once to
             // update the override for the default launch animation and once to set the mimetype
             // to improve startup performance
@@ -503,11 +491,34 @@ public class LauncherProvider extends ContentProvider {
                 version = 12;
             }
 
+            if (version < 13) {
+                db.delete(TABLE_FAVORITES, Favorites.CONTAINER + "=?", new String[] { Integer.toString(Favorites.CONTAINER_HOTSEAT) });
+
+                // The max id is not yet set at this point (onUpgrade is triggered in the ctor
+                // before it gets a change to get set, so we need to read it here when we use it)
+                if (mMaxId == -1) {
+                    mMaxId = initializeMaxId(db);
+                }
+
+                // Add default hotseat icons
+                loadFavorites(db, R.xml.update_workspace);
+                version = 13;
+            }
+
             if (version != DATABASE_VERSION) {
                 Log.w(TAG, "Destroying all old data.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_FAVORITES);
                 onCreate(db);
             }
+        }
+
+        @Override
+        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            if (LOGD) Log.d(TAG, "onDowngrade triggered");
+
+            Log.w(TAG, "Destroying all old data.");
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_FAVORITES);
+            onCreate(db);
         }
 
         private boolean updateContactsShortcuts(SQLiteDatabase db) {
@@ -824,14 +835,6 @@ public class LauncherProvider extends ContentProvider {
                     String screen = a.getString(R.styleable.Favorite_screen);
                     String x = a.getString(R.styleable.Favorite_x);
                     String y = a.getString(R.styleable.Favorite_y);
-
-                    // If we are adding to the hotseat, the screen is used as the position in the
-                    // hotseat. This screen can't be at position 0 because AllApps is in the
-                    // zeroth position.
-                    if (container == LauncherSettings.Favorites.CONTAINER_HOTSEAT
-                            && Integer.valueOf(screen) == allAppsButtonRank) {
-                        throw new RuntimeException("Invalid screen position for hotseat item");
-                    }
 
                     values.clear();
                     values.put(LauncherSettings.Favorites.CONTAINER, container);

@@ -69,7 +69,7 @@ import java.util.Set;
  */
 public class LauncherModel extends BroadcastReceiver {
     static final boolean DEBUG_LOADERS = false;
-    static final String TAG = "Launcher.Model";
+    private static final String TAG = "Trebuchet.LauncherModel";
 
     private static final int ITEMS_CHUNK = 6; // batch size for the workspace icons
     private final boolean mAppsCanBeOnExternalStorage;
@@ -159,7 +159,6 @@ public class LauncherModel extends BroadcastReceiver {
         public void bindAppsRemoved(ArrayList<String> packageNames, boolean permanent);
         public void bindPackagesUpdated();
         public boolean isAllAppsVisible();
-        public boolean isAllAppsButtonRank(int rank);
         public void bindSearchablesChanged();
         public void onPageBoundSynchronously(int page);
     }
@@ -386,14 +385,7 @@ public class LauncherModel extends BroadcastReceiver {
         item.cellX = cellX;
         item.cellY = cellY;
 
-        // We store hotseat items in canonical form which is this orientation invariant position
-        // in the hotseat
-        if (context instanceof Launcher && screen < 0 &&
-                container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-            item.screen = ((Launcher) context).getHotseat().getOrderInHotseat(cellX, cellY);
-        } else {
-            item.screen = screen;
-        }
+        item.screen = screen;
 
         final ContentValues values = new ContentValues();
         values.put(LauncherSettings.Favorites.CONTAINER, item.container);
@@ -560,14 +552,8 @@ public class LauncherModel extends BroadcastReceiver {
         item.container = container;
         item.cellX = cellX;
         item.cellY = cellY;
-        // We store hotseat items in canonical form which is this orientation invariant position
-        // in the hotseat
-        if (context instanceof Launcher && screen < 0 &&
-                container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-            item.screen = ((Launcher) context).getHotseat().getOrderInHotseat(cellX, cellY);
-        } else {
-            item.screen = screen;
-        }
+
+        item.screen = screen;
 
         final ContentValues values = new ContentValues();
         final ContentResolver cr = context.getContentResolver();
@@ -1174,20 +1160,15 @@ public class LauncherModel extends BroadcastReceiver {
         private boolean checkItemPlacement(ItemInfo occupied[][][], ItemInfo item) {
             int containerIndex = item.screen;
             if (item.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-                // Return early if we detect that an item is under the hotseat button
-                if (mCallbacks == null || mCallbacks.get().isAllAppsButtonRank(item.screen)) {
-                    return false;
-                }
-
                 // We use the last index to refer to the hotseat and the screen as the rank, so
                 // test and update the occupied state accordingly
-                if (occupied[Launcher.MAX_SCREEN_COUNT][item.screen][0] != null) {
+                if (occupied[Launcher.MAX_SCREEN_COUNT][item.cellX][0] != null) {
                     Log.e(TAG, "Error loading shortcut into hotseat " + item
                         + " into position (" + item.screen + ":" + item.cellX + "," + item.cellY
                         + ") occupied by " + occupied[Launcher.MAX_SCREEN_COUNT][item.screen][0]);
                     return false;
                 } else {
-                    occupied[Launcher.MAX_SCREEN_COUNT][item.screen][0] = item;
+                    occupied[Launcher.MAX_SCREEN_COUNT][item.cellX][0] = item;
                     return true;
                 }
             } else if (item.container != LauncherSettings.Favorites.CONTAINER_DESKTOP) {
@@ -2153,8 +2134,14 @@ public class LauncherModel extends BroadcastReceiver {
         }
         info.setIcon(icon);
 
+        // from the db
+        if (info.title == null) {
+            if (c != null) {
+                info.title =  c.getString(titleIndex);
+            }
+        }
         // from the resource
-        if (resolveInfo != null) {
+        if (info.title == null && resolveInfo != null) {
             ComponentName key = LauncherModel.getComponentNameFromResolveInfo(resolveInfo);
             if (labelCache != null && labelCache.containsKey(key)) {
                 info.title = labelCache.get(key);
@@ -2163,12 +2150,6 @@ public class LauncherModel extends BroadcastReceiver {
                 if (labelCache != null) {
                     labelCache.put(key, info.title);
                 }
-            }
-        }
-        // from the db
-        if (info.title == null) {
-            if (c != null) {
-                info.title =  c.getString(titleIndex);
             }
         }
         // fall back to the class name of the activity
@@ -2533,17 +2514,25 @@ public class LauncherModel extends BroadcastReceiver {
             if (mLabelCache.containsKey(a)) {
                 labelA = mLabelCache.get(a);
             } else {
-                labelA = (a instanceof AppWidgetProviderInfo) ?
-                    ((AppWidgetProviderInfo) a).label :
-                    ((ResolveInfo) a).loadLabel(mPackageManager).toString();
+                if (a instanceof AppWidgetProviderInfo) {
+                    labelA = ((AppWidgetProviderInfo) a).label;
+                } else if (a instanceof ResolveInfo) {
+                    labelA = ((ResolveInfo) a).loadLabel(mPackageManager).toString();
+                } else {
+                    labelA = ((LauncherActionInfo) a).title;
+                }
                 mLabelCache.put(a, labelA);
             }
             if (mLabelCache.containsKey(b)) {
                 labelB = mLabelCache.get(b);
             } else {
-                labelB = (b instanceof AppWidgetProviderInfo) ?
-                    ((AppWidgetProviderInfo) b).label :
-                    ((ResolveInfo) b).loadLabel(mPackageManager).toString();
+                if (b instanceof AppWidgetProviderInfo) {
+                    labelB = ((AppWidgetProviderInfo) b).label;
+                } else if (b instanceof ResolveInfo) {
+                    labelB = ((ResolveInfo) b).loadLabel(mPackageManager).toString();
+                } else {
+                    labelB = ((LauncherActionInfo) b).title;
+                }
                 mLabelCache.put(b, labelB);
             }
             return mCollator.compare(labelA, labelB);

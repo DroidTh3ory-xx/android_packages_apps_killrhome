@@ -58,7 +58,7 @@ import java.util.HashMap;
 import java.util.Stack;
 
 public class CellLayout extends ViewGroup {
-    static final String TAG = "CellLayout";
+    private static final String TAG = "Trebuchet.CellLayout";
 
     private Launcher mLauncher;
     private int mCellWidth;
@@ -405,6 +405,7 @@ public class CellLayout extends ViewGroup {
             setOverScrollAmount(0, false);
             setPivotX(getMeasuredWidth() / 2);
             setPivotY(getMeasuredHeight() / 2);
+            setCameraDistance(1280 * LauncherApplication.getScreenDensity());
         }
     }
 

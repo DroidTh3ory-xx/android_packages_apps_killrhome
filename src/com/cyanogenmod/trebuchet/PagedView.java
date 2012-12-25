@@ -51,7 +51,7 @@ import java.util.ArrayList;
  * sequential list of "pages"
  */
 public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarchyChangeListener {
-    private static final String TAG = "PagedView";
+    private static final String TAG = "Trebuchet.PagedView";
     private static final boolean DEBUG = false;
     protected static final int INVALID_PAGE = -1;
 
@@ -195,6 +195,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     private boolean mHasScrollIndicator = true;
     private boolean mShouldShowScrollIndicator = false;
     private boolean mShouldShowScrollIndicatorImmediately = false;
+    protected boolean mHandleScrollIndicator = false;
     protected static final int sScrollIndicatorFadeInDuration = 150;
     protected static final int sScrollIndicatorFadeOutDuration = 650;
     protected static final int sScrollIndicatorFadeOutShortDuration = 150;
@@ -881,14 +882,13 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
                 int x = getScaledRelativeChildOffset(0) + pageWidth;
                 int leftScreen = 0;
                 int rightScreen = 0;
-                while (x <= mScrollX && leftScreen < pageCount - 1) {
+                while (leftScreen < pageCount - 1 && x + getPageAt(leftScreen).getTranslationX() <= mScrollX) {
                     leftScreen++;
                     x += getScaledMeasuredWidth(getPageAt(leftScreen)) + mPageSpacing;
                 }
                 rightScreen = leftScreen;
 
-
-                while (x < mScrollX + screenWidth && rightScreen < pageCount - 1) {
+                while (rightScreen < pageCount - 1 && x + getPageAt(rightScreen + 1).getTranslationX() < mScrollX + screenWidth) {
                     rightScreen++;
                     x += getScaledMeasuredWidth(getPageAt(rightScreen)) + mPageSpacing;
                 }
@@ -1979,11 +1979,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         if (mHasScrollIndicator && mScrollIndicator == null) {
             ViewGroup parent = (ViewGroup) getParent();
             if (parent != null) {
-                if (!mVertical) {
-                    mScrollIndicator = (View) parent.findViewById(R.id.paged_view_indicator_horizontal);
-                } else {
-                    mScrollIndicator = (View) parent.findViewById(R.id.paged_view_indicator_vertical);
-                }
+                mScrollIndicator = parent.findViewById(getScrollingIndicatorId());
                 mHasScrollIndicator = mScrollIndicator != null;
                 if (mHasScrollIndicator) {
                     mScrollIndicator.setVisibility(View.VISIBLE);
@@ -1995,6 +1991,10 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
 
     protected boolean isScrollingIndicatorEnabled() {
         return true;
+    }
+
+    protected int getScrollingIndicatorId() {
+        return R.id.paged_view_indicator;
     }
 
     Runnable hideScrollingIndicatorRunnable = new Runnable() {
@@ -2018,6 +2018,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         mShouldShowScrollIndicatorImmediately = true;
         if (getChildCount() <= 1) return;
         if (!isScrollingIndicatorEnabled()) return;
+        if (mHandleScrollIndicator) return;
 
         mShouldShowScrollIndicator = false;
         getScrollingIndicator();
@@ -2049,6 +2050,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     protected void hideScrollingIndicator(boolean immediately, int duration) {
         if (getChildCount() <= 1) return;
         if (!isScrollingIndicatorEnabled()) return;
+        if (mHandleScrollIndicator) return;
 
         getScrollingIndicator();
         if (mScrollIndicator != null) {
@@ -2106,6 +2108,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     private void updateScrollingIndicator() {
         if (getChildCount() <= 1) return;
         if (!isScrollingIndicatorEnabled()) return;
+        if (mHandleScrollIndicator) return;
 
         getScrollingIndicator();
         if (mScrollIndicator != null) {
@@ -2119,6 +2122,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     private void updateScrollingIndicatorPosition() {
         if (!isScrollingIndicatorEnabled()) return;
         if (mScrollIndicator == null) return;
+        if (mHandleScrollIndicator) return;
         int numPages = getChildCount();
         int pageSize = !mVertical ? getMeasuredWidth() : getMeasuredHeight();
         int lastChildIndex = Math.max(0, getChildCount() - 1);
