@@ -23,9 +23,9 @@
     <!-- Application name -->
     <string name="application_name" translatable="false">KILLRHome</string>
     <!-- Application copyright -->
-    <string name="application_copyright">Built Off CM Source</string>
+    <string name="application_copyright">Built Off Trebuchet</string>
     <!-- Application version -->
-    <string name="application_version">0.1</string>
+    <string name="application_version">2.0</string>
     <!-- Accessibility-facing application name -->
     <string name="home">Home</string>
     <!-- Name for all applications running as this uid. -->
@@ -312,7 +312,7 @@ s -->
     <!--             -->
     <string name="preferences_title">Modifiers</string>
     <!-- UI -->
-    <string name="preferences_interface_title">System Home</string>
+    <string name="preferences_interface_title">Launcher Home</string>
     <!-- Application -->
     <string name="preferences_application_title">Application</string>
 
@@ -320,7 +320,7 @@ s -->
     <!-- Homescreen -->
     <string name="preferences_interface_homescreen_title">Home Settings</string>
     <string name="preferences_interface_homescreen_summary">Screens and wallpaper</string>
-    <string name="preferences_interface_homescreen_general_category">Rotation</string>
+    <string name="preferences_interface_homescreen_general_category">System Mods</string>
     <string name="preferences_interface_homescreen_general_screens_title">Homescreens</string>
     <string name="preferences_interface_homescreen_general_screens_summary">Number of screens on the homescreen</string>
     <string name="preferences_interface_homescreen_general_default_screen_title">Default screen</string>
@@ -382,7 +382,7 @@ s -->
     <string name="preferences_interface_drawer_indicator_position_summary">Choose where to show the indicator on the screen</string>
 
     <!-- Dock -->
-    <string name="preferences_interface_dock_title">Dock</string>
+    <string name="preferences_interface_dock_title">Dock Mods</string>
     <string name="preferences_interface_dock_pages_title">Pages</string>
     <string name="preferences_interface_dock_pages_summary">Number of pages in the dock</string>
     <string name="preferences_interface_dock_default_page_title">Default page</string>
