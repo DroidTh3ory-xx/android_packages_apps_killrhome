@@ -33,8 +33,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.inputmethod.InputMethodManager;
 
-import com.cyanogenmod.trebuchet.R;
-
 import java.util.ArrayList;
 
 /**
@@ -326,7 +324,7 @@ public class DragController {
         }
         endDrag();
     }
-    public void onAppsRemoved(ArrayList<String> packageNames, Context context) {
+    public void onAppsRemoved(ArrayList<String> packageNames) {
         // Cancel the current drag if we are removing an app that we are dragging
         if (mDragObject != null) {
             Object rawDragInfo = mDragObject.dragInfo;
@@ -519,7 +517,7 @@ public class DragController {
             if (mScrollState == SCROLL_OUTSIDE_ZONE) {
                 mScrollState = SCROLL_WAITING_IN_ZONE;
                 if (mDragScroller.onEnterScrollArea(x, y, SCROLL_LEFT)) {
-                    mLauncher.getDragLayer().onEnterScrollArea(SCROLL_LEFT);
+                    mLauncher.getDragLayer().onEnterScrollArea();
                     mScrollRunnable.setDirection(SCROLL_LEFT);
                     mHandler.postDelayed(mScrollRunnable, delay);
                 }
@@ -528,7 +526,7 @@ public class DragController {
             if (mScrollState == SCROLL_OUTSIDE_ZONE) {
                 mScrollState = SCROLL_WAITING_IN_ZONE;
                 if (mDragScroller.onEnterScrollArea(x, y, SCROLL_RIGHT)) {
-                    mLauncher.getDragLayer().onEnterScrollArea(SCROLL_RIGHT);
+                    mLauncher.getDragLayer().onEnterScrollArea();
                     mScrollRunnable.setDirection(SCROLL_RIGHT);
                     mHandler.postDelayed(mScrollRunnable, delay);
                 }

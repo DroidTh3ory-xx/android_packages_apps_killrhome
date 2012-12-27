@@ -23,7 +23,7 @@
     <!-- Application name -->
     <string name="application_name" translatable="false">KILLRHome</string>
     <!-- Application copyright -->
-    <string name="application_copyright">Built Off Trebuchet</string>
+    <string name="application_copyright">Built from Trebuchet source</string>
     <!-- Application version -->
     <string name="application_version">2.0</string>
     <!-- Accessibility-facing application name -->

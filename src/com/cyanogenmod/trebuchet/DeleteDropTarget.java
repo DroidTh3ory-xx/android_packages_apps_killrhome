@@ -113,6 +113,7 @@ public class DeleteDropTarget extends ButtonDropTarget {
                 switch (addInfo.itemType) {
                     case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
                     case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:
+                    case LauncherSettings.Favorites.ITEM_TYPE_LAUNCHER_ACTION:
                         return true;
                 }
             }
@@ -159,10 +160,12 @@ public class DeleteDropTarget extends ButtonDropTarget {
         } else if (isWorkspaceOrFolderApplication(source, info)) {
             ShortcutInfo shortcutInfo = (ShortcutInfo) info;
             PackageManager pm = getContext().getPackageManager();
-            ResolveInfo resolveInfo = pm.resolveActivity(shortcutInfo.intent, 0);
-            if (resolveInfo != null && (resolveInfo.activityInfo.applicationInfo.flags &
-                    android.content.pm.ApplicationInfo.FLAG_SYSTEM) == 0) {
-                isUninstall = true;
+            if (shortcutInfo.itemType != LauncherSettings.Favorites.ITEM_TYPE_LAUNCHER_ACTION) {
+                ResolveInfo resolveInfo = pm.resolveActivity(shortcutInfo.intent, 0);
+                if (resolveInfo != null && (resolveInfo.activityInfo.applicationInfo.flags &
+                        android.content.pm.ApplicationInfo.FLAG_SYSTEM) == 0) {
+                    isUninstall = true;
+                }
             }
         }
 
@@ -348,7 +351,7 @@ public class DeleteDropTarget extends ButtonDropTarget {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 final DragView dragView = (DragView) dragLayer.getAnimatedView();
-                float t = ((Float) animation.getAnimatedValue()).floatValue();
+                float t = (Float) animation.getAnimatedValue();
                 float tp = scaleAlphaInterpolator.getInterpolation(t);
                 float initialScale = dragView.getInitialScale();
                 float finalAlpha = 0.5f;
@@ -396,7 +399,7 @@ public class DeleteDropTarget extends ButtonDropTarget {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
             final DragView dragView = (DragView) mDragLayer.getAnimatedView();
-            float t = ((Float) animation.getAnimatedValue()).floatValue();
+            float t = (Float) animation.getAnimatedValue();
             long curTime = AnimationUtils.currentAnimationTimeMillis();
 
             if (!mHasOffsetForScale) {
@@ -420,7 +423,7 @@ public class DeleteDropTarget extends ButtonDropTarget {
             mVelocity.y *= mFriction;
             mPrevTime = curTime;
         }
-    };
+    }
     private AnimatorUpdateListener createFlingAlongVectorAnimatorListener(final DragLayer dragLayer,
             DragObject d, PointF vel, final long startTime, final int duration,
             ViewConfiguration config) {
