@@ -383,6 +383,7 @@ s -->
 
     <!-- Dock -->
     <string name="preferences_interface_dock_title">Dock Mods</string>
+    <string name="preferences_interface_dock_summary">Extended Dock Mods</string>
     <string name="preferences_interface_dock_pages_title">Pages</string>
     <string name="preferences_interface_dock_pages_summary">Number of pages in the dock</string>
     <string name="preferences_interface_dock_default_page_title">Default page</string>
@@ -396,7 +397,8 @@ s -->
     <string name="preferences_interface_icons_title">Icons</string>
 
     <!-- General -->
-    <string name="preferences_interface_general_title">Rotation</string>
+    <string name="preferences_interface_general_title">Screen Mods</string>
+    <string name="preferences_interface_general_summary">Rotation And Fullscreen</string>
     <string name="preferences_interface_general_orientation_title">Auto-rotate screen</string>
     <string name="preferences_interface_general_fullscreen_title">Fullscreen mode</string>
     <string name="preferences_interface_general_fullscreen_summary">Hide the status bar to extend the homescreen</string>
