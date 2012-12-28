@@ -13,8 +13,20 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<com.cyanogenmod.trebuchet.Hotseat
+<TextView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:launcher="http://schemas.android.com/apk/res/com.cyanogenmod.trebuchet"
-    launcher:cellCountX="@integer/hotseat_cell_count"
-    launcher:cellCountY="1" />
+    style="@style/MarketButton"
+    android:onClick="onClickOverflowMenuButton"
+    android:drawableLeft="@drawable/ic_menu_overflow"
+    android:gravity="center"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:background="@drawable/tab_widget_indicator_selector"
+    android:contentDescription="@string/menu"
+    android:shadowColor="@color/workspace_all_apps_and_delete_zone_text_shadow_color"
+    android:shadowDx="0.0"
+    android:shadowDy="0.0"
+    android:shadowRadius="2.0"
+    android:focusable="true"
+    android:clickable="true" />

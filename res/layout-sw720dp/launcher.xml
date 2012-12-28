@@ -36,14 +36,7 @@
         launcher:cellCountY="@integer/cell_count_y"
         launcher:pageSpacing="@dimen/workspace_page_spacing"
         launcher:scrollIndicatorPaddingLeft="@dimen/workspace_divider_padding_left"
-        launcher:scrollIndicatorPaddingRight="@dimen/workspace_divider_padding_right">
-
-        <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
-        <include android:id="@+id/cell2" layout="@layout/workspace_screen" />
-        <include android:id="@+id/cell3" layout="@layout/workspace_screen" />
-        <include android:id="@+id/cell4" layout="@layout/workspace_screen" />
-        <include android:id="@+id/cell5" layout="@layout/workspace_screen" />
-    </com.cyanogenmod.trebuchet.Workspace>
+        launcher:scrollIndicatorPaddingRight="@dimen/workspace_divider_padding_right" />
 
     <include
         android:id="@+id/dock_divider"
@@ -53,12 +46,26 @@
         android:layout_marginBottom="@dimen/button_bar_height_plus_padding"
         android:layout_gravity="bottom|center_horizontal" />
     <include
-        android:id="@+id/paged_view_indicator_horizontal"
+        android:id="@+id/paged_view_indicator_dock"
         layout="@layout/scroll_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_marginBottom="@dimen/button_bar_height_plus_padding" />
+
+    <include
+        android:id="@+id/paged_view_indicator_top"
+        layout="@layout/scroll_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top" />
+
+    <include
+        android:id="@+id/paged_view_indicator_bottom"
+        layout="@layout/scroll_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom" />
 
     <include layout="@layout/hotseat"
         android:id="@+id/hotseat"

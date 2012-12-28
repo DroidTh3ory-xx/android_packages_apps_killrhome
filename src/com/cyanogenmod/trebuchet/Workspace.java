@@ -2670,7 +2670,10 @@ public class Workspace extends PagedView
             return false;
         }
 
-        boolean aboveShortcut = (dropOverView.getTag() instanceof ShortcutInfo);
+        ItemInfo aboveInfo = (ItemInfo) dropOverView.getTag();
+        boolean aboveShortcut =
+                (aboveInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION ||
+                aboveInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT);
         boolean willBecomeShortcut =
                 (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION ||
                 info.itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT);
@@ -2787,7 +2790,7 @@ public class Workspace extends PagedView
         // We want the point to be mapped to the dragTarget.
         if (dropTargetLayout != null) {
             if (mLauncher.isHotseatLayout(dropTargetLayout)) {
-               mLauncher.getHotseat().mapPointFromChildToSelf(dropTargetLayout, mDragViewVisualCenter);
+                mapPointFromSelfToHotseatLayout(mLauncher.getHotseat(), mDragViewVisualCenter);
             } else {
                 mapPointFromSelfToChild(dropTargetLayout, mDragViewVisualCenter, null);
             }
@@ -3380,7 +3383,7 @@ public class Workspace extends PagedView
         if (mDragTargetLayout != null) {
             // We want the point to be mapped to the dragTarget.
             if (mLauncher.isHotseatLayout(mDragTargetLayout)) {
-               mLauncher.getHotseat().mapPointFromChildToSelf(mDragTargetLayout, mDragViewVisualCenter);
+                mapPointFromSelfToHotseatLayout(mLauncher.getHotseat(), mDragViewVisualCenter);
             } else {
                 mapPointFromSelfToChild(mDragTargetLayout, mDragViewVisualCenter, null);
             }
@@ -3607,7 +3610,8 @@ public class Workspace extends PagedView
             final PendingAddItemInfo pendingInfo = (PendingAddItemInfo) dragInfo;
 
             boolean findNearestVacantCell = true;
-            if (pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT) {
+            if (pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT ||
+                    pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_LAUNCHER_ACTION) {
                 mTargetCell = findNearestArea(touchXY[0], touchXY[1], spanX, spanY,
                         cellLayout, mTargetCell);
                 float distance = cellLayout.getDistanceFromCell(mDragViewVisualCenter[0],
@@ -4349,9 +4353,12 @@ public class Workspace extends PagedView
                     // return null for some shortcuts (for instance, for shortcuts to
                     // web pages.)
                     final Intent intent = info.intent;
-                    final ComponentName name = intent.getComponent();
-                    if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION &&
-                            Intent.ACTION_MAIN.equals(intent.getAction()) && name != null) {
+                    if (intent != null && info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION &&
+                            Intent.ACTION_MAIN.equals(intent.getAction())) {
+                        final ComponentName name = intent.getComponent();
+                        if (name == null) {
+                            continue;
+                        }
                         for (ApplicationInfo app : apps) {
                             if (app.componentName.equals(name)) {
                                 BubbleTextView shortcut = (BubbleTextView) view;

@@ -83,6 +83,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.View.OnLongClickListener;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
@@ -931,12 +932,12 @@ public final class Launcher extends Activity
         mSearchDropTargetBar = (SearchDropTargetBar) mDragLayer.findViewById(R.id.qsb_bar);
 
         // Hide the search divider if we are hiding search bar
-        if (!mShowSearchBar && getCurrentOrientation() == Configuration.ORIENTATION_LANDSCAPE) {
-            findViewById(R.id.qsb_divider).setVisibility(View.GONE);
+        if (!mShowSearchBar && mQsbDivider != null && getCurrentOrientation() == Configuration.ORIENTATION_LANDSCAPE) {
+            mQsbDivider.setVisibility(View.GONE);
         }
 
-        if (!mShowDockDivider) {
-            findViewById(R.id.dock_divider).setVisibility(View.GONE);
+        if (!mShowDockDivider && mDockDivider != null) {
+            mDockDivider.setVisibility(View.GONE);
         }
 
         // Setup AppsCustomize
@@ -1717,17 +1718,17 @@ public final class Launcher extends Activity
         menu.add(0, MENU_MANAGE_APPS, 0, R.string.menu_manage_apps)
             .setIcon(android.R.drawable.ic_menu_manage)
             .setIntent(manageApps)
-            .setAlphabeticShortcut('M');
-        if (!getResources().getBoolean(R.bool.config_cyanogenmod)) {
-            menu.add(0, MENU_PREFERENCES, 0, R.string.menu_preferences)
-                .setIcon(android.R.drawable.ic_menu_preferences)
-                .setIntent(preferences)
-                .setAlphabeticShortcut('O');
-        }
+            .setAlphabeticShortcut('A');
+
+        menu.add(0, MENU_PREFERENCES, 0, R.string.menu_preferences)
+            .setIcon(android.R.drawable.ic_menu_preferences)
+            .setIntent(preferences)
+            .setAlphabeticShortcut('P');
+
         menu.add(0, MENU_SYSTEM_SETTINGS, 0, R.string.menu_settings)
             .setIcon(android.R.drawable.ic_menu_preferences)
             .setIntent(settings)
-            .setAlphabeticShortcut('P');
+            .setAlphabeticShortcut('S');
         if (!helpUrl.isEmpty()) {
             menu.add(0, MENU_HELP, 0, R.string.menu_help)
                 .setIcon(android.R.drawable.ic_menu_help)
@@ -1747,6 +1748,15 @@ public final class Launcher extends Activity
         boolean allAppsVisible = (mAppsCustomizeTabHost.getVisibility() == View.VISIBLE);
         menu.setGroupVisible(MENU_GROUP_WALLPAPER, !allAppsVisible);
 
+        Intent launcherIntent = new Intent(Intent.ACTION_MAIN);
+        launcherIntent.addCategory(Intent.CATEGORY_HOME);
+        launcherIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        ActivityInfo defaultLauncher = getPackageManager().resolveActivity(launcherIntent, PackageManager.MATCH_DEFAULT_ONLY).activityInfo;
+        // Hide preferences if not on CyanogenMod or not default launcher
+        // (in which case preferences don't get shown in system settings)
+        boolean preferencesVisible = !getPackageManager().hasSystemFeature("com.cyanogenmod.android") ||
+                !defaultLauncher.packageName.equals(getClass().getPackage().getName());
+        menu.findItem(MENU_PREFERENCES).setVisible(preferencesVisible);
         return true;
     }
 
@@ -2173,6 +2183,15 @@ public final class Launcher extends Activity
         });
         popupMenu.show();
     }
+
+    public void onClickOverflowMenuButton(View v) {
+        final PopupMenu popupMenu = new PopupMenu(this, v);
+        final Menu menu = popupMenu.getMenu();
+        onCreateOptionsMenu(menu);
+        onPrepareOptionsMenu(menu);
+        popupMenu.show();
+    }
+
 
     void startApplicationDetailsActivity(ComponentName componentName) {
         String packageName = componentName.getPackageName();
@@ -3408,7 +3427,17 @@ public final class Launcher extends Activity
         // Find the app market activity by resolving an intent.
         // (If multiple app markets are installed, it will return the ResolverActivity.)
         ComponentName activityName = intent.resolveActivity(getPackageManager());
-        if (activityName != null) {
+
+        // Check to see if overflow menu is shown
+        Intent launcherIntent = new Intent(Intent.ACTION_MAIN);
+        launcherIntent.addCategory(Intent.CATEGORY_HOME);
+        launcherIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        ActivityInfo defaultLauncher = getPackageManager().resolveActivity(launcherIntent, PackageManager.MATCH_DEFAULT_ONLY).activityInfo;
+        // Hide preferences if not on CyanogenMod or not default launcher
+        // (in which case preferences don't get shown in system settings)
+        boolean preferencesVisible = !getPackageManager().hasSystemFeature("com.cyanogenmod.android") ||
+                !defaultLauncher.packageName.equals(getClass().getPackage().getName());
+        if (activityName != null && (ViewConfiguration.get(this).hasPermanentMenuKey() || !preferencesVisible)) {
             int coi = getCurrentOrientationIndexForGlobalIcons();
             mAppMarketIntent = intent;
             sAppMarketIcon[coi] = updateTextButtonWithIconFromExternalActivity(
@@ -3446,6 +3475,24 @@ public final class Launcher extends Activity
             text.add(getString(R.string.all_apps_home_button_label));
         }
         return result;
+    }
+
+    private void updateOverflowMenuButton() {
+        final View overflowMenuButton = findViewById(R.id.overflow_menu_button);
+        Intent launcherIntent = new Intent(Intent.ACTION_MAIN);
+        launcherIntent.addCategory(Intent.CATEGORY_HOME);
+        launcherIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        ActivityInfo defaultLauncher = getPackageManager().resolveActivity(launcherIntent, PackageManager.MATCH_DEFAULT_ONLY).activityInfo;
+        // Hide preferences if not on CyanogenMod or not default launcher
+        // (in which case preferences don't get shown in system settings)
+        boolean preferencesVisible = !getPackageManager().hasSystemFeature("com.cyanogenmod.android") ||
+                !defaultLauncher.packageName.equals(getClass().getPackage().getName());
+        if (ViewConfiguration.get(this).hasPermanentMenuKey() || !preferencesVisible) {
+            overflowMenuButton.setVisibility(View.GONE);
+            overflowMenuButton.setEnabled(false);
+        } else {
+            overflowMenuButton.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -3918,6 +3965,9 @@ public final class Launcher extends Activity
                             .commit();
             }
         }.start();
+
+        // Hide overflow menu on devices with a hardkey
+        updateOverflowMenuButton();
     }
 
     @Override
