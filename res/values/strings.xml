@@ -87,8 +87,6 @@ s -->
     <string name="group_shortcuts">Shortcuts</string>
     <!-- Options in "Add to Home" dialog box; Title of the group containing the list of all widgets/gadgets -->
     <string name="group_widgets">Widgets</string>
-    <!-- Options in "Add to Home" dialog box; Title of the group containing the list of all launcher actions -->
-    <string name="group_actions">Actions</string>
     <!-- Options in "Add to Home" dialog box; Title of the group containing the list of apps that can set the wallpaper-->
     <string name="group_wallpapers">Wallpapers</string>
     <!-- Error message when user has filled all their home screens -->
@@ -406,4 +404,22 @@ s -->
     <string name="preferences_interface_general_orientation_title">Auto-rotate screen</string>
     <string name="preferences_interface_general_fullscreen_title">Fullscreen mode</string>
     <string name="preferences_interface_general_fullscreen_summary">Hide the status bar to extend the homescreen</string>
+
+    <!-- Koush steals yachts -->
+    <string-array name="preferences_koush">
+        <item>Koush steals yachts!!!!</item>
+        <item>Koush steals yachts!!!!</item>
+        <item>Koush steals yachts!!!!</item>
+        <item>Koush steals yachts!!!!</item>
+        <item>I hope you step on a LEGO!!!!</item>
+        <item>This setting is here \"because we can\"</item>
+        <item>Looks good to me, but someone else must approve</item>
+        <item>I would prefer that you didn\'t submit this</item>
+        <item>WHY ARE YOU UP AT 3AM!!!!</item>
+        <item>Do not submit</item>
+        <item>&lt;cdesai&gt; settings seem small</item>
+        <item>&lt;cdesai&gt; the size of preferences</item>
+        <item>&lt;nebkat&gt; what am I supposed to do?</item>
+        <item>&lt;nebkat&gt; fill the space with \"koush steals yachts\"?</item>
+    </string-array>
 </resources>
