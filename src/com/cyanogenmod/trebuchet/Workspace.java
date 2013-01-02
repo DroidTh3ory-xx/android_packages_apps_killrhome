@@ -30,7 +30,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -301,6 +300,7 @@ public class Workspace extends PagedView
     private int mDefaultHomescreen;
     private boolean mStretchScreens;
     private boolean mShowSearchBar;
+    private boolean mShowHotseat;
     private boolean mResizeAnyWidget;
     private boolean mHideIconLabels;
     private boolean mScrollWallpaper;
@@ -388,6 +388,7 @@ public class Workspace extends PagedView
 
         mStretchScreens = PreferencesProvider.Interface.Homescreen.getStretchScreens();
         mShowSearchBar = PreferencesProvider.Interface.Homescreen.getShowSearchBar();
+        mShowHotseat = PreferencesProvider.Interface.Dock.getShowDock();
         mResizeAnyWidget = PreferencesProvider.Interface.Homescreen.getResizeAnyWidget();
         mHideIconLabels = PreferencesProvider.Interface.Homescreen.getHideIconLabels();
         mTransitionEffect = PreferencesProvider.Interface.Homescreen.Scrolling.getTransitionEffect(
@@ -402,7 +403,7 @@ public class Workspace extends PagedView
         mShowScrollingIndicator = PreferencesProvider.Interface.Homescreen.Indicator.getShowScrollingIndicator();
         mFadeScrollingIndicator = PreferencesProvider.Interface.Homescreen.Indicator.getFadeScrollingIndicator();
         mScrollingIndicatorPosition = PreferencesProvider.Interface.Homescreen.Indicator.getScrollingIndicatorPosition();
-        mShowDockDivider = PreferencesProvider.Interface.Dock.getShowDivider();
+        mShowDockDivider = PreferencesProvider.Interface.Dock.getShowDivider() && mShowHotseat;
 
         initWorkspace();
         checkWallpaper();
@@ -524,13 +525,18 @@ public class Workspace extends PagedView
         }
 
         if (!mShowSearchBar) {
-            int paddingTop = 0;
-            int paddingLeft = 0;
-            if (mLauncher.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT) {
-                paddingTop = (int)res.getDimension(R.dimen.qsb_bar_hidden_inset);
-                paddingLeft = getPaddingRight();
-            }
+            int paddingLeft = (int) res.getDimension(R.dimen.workspace_left_padding_qsb_hidden);
+            int paddingTop = (int) res.getDimension(R.dimen.workspace_top_padding_qsb_hidden);
             setPadding(paddingLeft, paddingTop, getPaddingRight(), getPaddingBottom());
+        }
+
+        if (!mShowHotseat) {
+            int paddingRight = (int) res.getDimension(R.dimen.workspace_right_padding_hotseat_hidden);
+            int paddingBottom = (int) res.getDimension(R.dimen.workspace_bottom_padding_hotseat_hidden);
+            setPadding(getPaddingLeft(), getPaddingTop(), paddingRight, paddingBottom);
+
+            View dockScrollingIndicator = findViewById(R.id.paged_view_indicator_dock);
+            ((MarginLayoutParams)dockScrollingIndicator.getLayoutParams()).bottomMargin = 0;
         }
 
         if (!mShowScrollingIndicator) {
@@ -1093,8 +1099,8 @@ public class Workspace extends PagedView
     }
 
     private void updateWallpaperOffsets() {
-        boolean updateNow = false;
-        boolean keepUpdating = true;
+        boolean updateNow;
+        boolean keepUpdating;
         if (mUpdateWallpaperOffsetImmediately) {
             updateNow = true;
             keepUpdating = false;
@@ -2909,7 +2915,7 @@ public class Workspace extends PagedView
                             final Runnable addResizeFrame = new Runnable() {
                                 public void run() {
                                     DragLayer dragLayer = mLauncher.getDragLayer();
-                                    dragLayer.addResizeFrame(info, hostView, cellLayout);
+                                    dragLayer.addResizeFrame(hostView, cellLayout);
                                 }
                             };
                             resizeRunnable = (new Runnable() {
@@ -3026,7 +3032,7 @@ public class Workspace extends PagedView
                 int height = smallestSize.y - paddingTop - paddingBottom;
                 mLandscapeCellLayoutMetrics = new Rect();
                 CellLayout.getMetrics(mLandscapeCellLayoutMetrics, res,
-                        width, height, LauncherModel.getCellCountX(), LauncherModel.getCellCountY(),
+                        width, height, LauncherModel.getWorkspaceCellCountX(), LauncherModel.getWorkspaceCellCountY(),
                         orientation);
             }
             return mLandscapeCellLayoutMetrics;
@@ -3040,7 +3046,7 @@ public class Workspace extends PagedView
                 int height = largestSize.y - paddingTop - paddingBottom;
                 mPortraitCellLayoutMetrics = new Rect();
                 CellLayout.getMetrics(mPortraitCellLayoutMetrics, res,
-                        width, height, LauncherModel.getCellCountX(), LauncherModel.getCellCountY(),
+                        width, height, LauncherModel.getWorkspaceCellCountX(), LauncherModel.getWorkspaceCellCountY(),
                         orientation);
             }
             return mPortraitCellLayoutMetrics;
@@ -3097,10 +3103,6 @@ public class Workspace extends PagedView
         cleanupReorder(true);
         cleanupFolderCreation();
         setCurrentDropOverCell(-1, -1);
-    }
-
-    PagedView getCurrentDropTarget() {
-        return mLauncher.isHotseatLayout(mDragTargetLayout) ? mLauncher.getHotseat() : this;
     }
 
     void setCurrentDragOverlappingLayout(CellLayout layout) {
@@ -3208,8 +3210,8 @@ public class Workspace extends PagedView
 
    void mapPointFromSelfToHotseatLayout(Hotseat hotseat, float[] xy) {
        hotseat.getPageAt(hotseat.getNextPage()).getMatrix().invert(mTempInverseMatrix);
-       xy[0] = xy[0] - hotseat.getLeft() - hotseat.getPageAt(hotseat.getNextPage()).getLeft();
-       xy[1] = xy[1] - hotseat.getTop() - hotseat.getPageAt(hotseat.getNextPage()).getTop();
+       xy[0] = xy[0] - (hotseat.getLeft() - hotseat.getScrollX()) - hotseat.getPageAt(hotseat.getNextPage()).getLeft();
+       xy[1] = xy[1] - (hotseat.getTop() - hotseat.getScrollY()) - hotseat.getPageAt(hotseat.getNextPage()).getTop();
        mTempInverseMatrix.mapPoints(xy);
    }
 
@@ -3782,7 +3784,7 @@ public class Workspace extends PagedView
 
     private void getFinalPositionForDropAnimation(int[] loc, float[] scaleXY,
             DragView dragView, CellLayout layout, ItemInfo info, int[] targetCell,
-            boolean external, boolean scale) {
+            boolean scale) {
         // Now we animate the dragView, (ie. the widget or shortcut preview) into its final
         // location and size on the home screen.
         int spanX = info.spanX;
@@ -3826,7 +3828,7 @@ public class Workspace extends PagedView
         float scaleXY[] = new float[2];
         boolean scalePreview = !(info instanceof PendingAddShortcutInfo);
         getFinalPositionForDropAnimation(finalPos, scaleXY, dragView, cellLayout, info, mTargetCell,
-                external, scalePreview);
+                scalePreview);
 
         Resources res = mLauncher.getResources();
         int duration = res.getInteger(R.integer.config_dropAnimMaxDuration) - 200;
@@ -4236,10 +4238,10 @@ public class Workspace extends PagedView
                         if (tag instanceof ShortcutInfo) {
                             final ShortcutInfo info = (ShortcutInfo) tag;
                             final Intent intent = info.intent;
-                            final ComponentName name = intent.getComponent();
 
-                            if (name != null) {
-                                if (packageNames.contains(name.getPackageName())) {
+                            if (intent != null) {
+                                final ComponentName name = intent.getComponent();
+                                if (name != null && packageNames.contains(name.getPackageName())) {
                                     LauncherModel.deleteItemFromDatabase(mLauncher, info);
                                     childrenToRemove.add(view);
                                 }
@@ -4247,7 +4249,6 @@ public class Workspace extends PagedView
                         } else if (tag instanceof FolderInfo) {
                             final FolderInfo info = (FolderInfo) tag;
                             final ArrayList<ShortcutInfo> contents = info.contents;
-                            final int contentsCount = contents.size();
                             final ArrayList<ShortcutInfo> appsToRemoveFromFolder =
                                     new ArrayList<ShortcutInfo>();
 

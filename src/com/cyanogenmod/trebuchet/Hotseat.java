@@ -69,6 +69,8 @@ public class Hotseat extends PagedView {
         mCellCount = a.getInt(R.styleable.Hotseat_cellCount, DEFAULT_CELL_COUNT);
         mCellCount = PreferencesProvider.Interface.Dock.getNumberIcons(mCellCount);
 
+        LauncherModel.updateHotseatLayoutCells(mCellCount);
+
         mVertical = hasVerticalHotseat();
 
 
@@ -212,14 +214,6 @@ public class Hotseat extends PagedView {
             CellLayout cl = (CellLayout) getChildAt(i);
             cl.setBackgroundAlpha(alpha);
         }
-    }
-
-    /**
-     * Return the current {@link CellLayout}, correctly picking the destination
-     * screen while a scroll is in progress.
-     */
-    public CellLayout getCurrentDropLayout() {
-        return (CellLayout) getChildAt(getNextPage());
     }
 
     @Override
