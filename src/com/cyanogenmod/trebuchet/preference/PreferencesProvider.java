@@ -82,9 +82,6 @@ public final class PreferencesProvider {
             public static boolean getShowSearchBar() {
                 return getBoolean("ui_homescreen_general_search", true);
             }
-            public static boolean getResizeAnyWidget() {
-                return getBoolean("ui_homescreen_general_resize_any_widget", false);
-            }
             public static boolean getHideIconLabels() {
                 return getBoolean("ui_homescreen_general_hide_icon_labels", false);
             }
@@ -108,8 +105,8 @@ public final class PreferencesProvider {
                 public static boolean getScrollWallpaper() {
                     return getBoolean("ui_homescreen_scrolling_scroll_wallpaper", true);
                 }
-                public static boolean getWallpaperHack() {
-                    return getBoolean("ui_homescreen_scrolling_wallpaper_hack", false);
+                public static boolean getWallpaperHack(boolean def) {
+                    return getBoolean("ui_homescreen_scrolling_wallpaper_hack", def);
                 }
                 public static int getWallpaperSize() {
                     return getInt("ui_homescreen_scrolling_wallpaper_size", 2);

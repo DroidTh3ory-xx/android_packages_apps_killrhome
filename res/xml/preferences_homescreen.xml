@@ -24,8 +24,8 @@
             android:summary="@string/preferences_interface_homescreen_general_grid_summary"
             launcher:pickerTitle1="@string/preferences_interface_homescreen_general_grid_rows_title"
             launcher:pickerTitle2="@string/preferences_interface_homescreen_general_grid_columns_title"
-            launcher:defaultValue1="@integer/cell_count_x"
-            launcher:defaultValue2="@integer/cell_count_y"
+            launcher:defaultValue1="@integer/target_cell_count_x"
+            launcher:defaultValue2="@integer/target_cell_count_y"
             launcher:max1="7"
             launcher:min1="3"
             launcher:max2="7"
@@ -50,9 +50,6 @@
             android:title="@string/preferences_interface_homescreen_general_search_title"
             android:summary="@string/preferences_interface_homescreen_general_search_summary"
             android:defaultValue="true" />
-        <CheckBoxPreference android:key="ui_homescreen_general_resize_any_widget"
-            android:title="@string/preferences_interface_homescreen_general_resize_any_widget_title"
-            android:summary="@string/preferences_interface_homescreen_general_resize_any_widget_summary" />
         <CheckBoxPreference android:key="ui_homescreen_general_hide_icon_labels"
             android:title="@string/preferences_interface_homescreen_general_hide_icon_labels_title"
             android:summary="@string/preferences_interface_homescreen_general_hide_icon_labels_summary" />
@@ -71,7 +68,7 @@
         <CheckBoxPreference android:key="ui_homescreen_scrolling_wallpaper_hack"
             android:title="@string/preferences_interface_homescreen_scrolling_wallpaper_hack_title"
             android:summary="@string/preferences_interface_homescreen_scrolling_wallpaper_hack_summary"
-            android:defaultValue="false" />
+            android:defaultValue="@bool/config_workspaceDefaultWallpaperHack" />
         <com.cyanogenmod.trebuchet.preference.NumberPickerPreference android:key="ui_homescreen_scrolling_wallpaper_size"
             android:title="@string/preferences_interface_homescreen_scrolling_wallpaper_size_title"
             android:summary="@string/preferences_interface_homescreen_scrolling_wallpaper_size_summary"
