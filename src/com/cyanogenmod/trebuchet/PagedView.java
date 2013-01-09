@@ -1695,7 +1695,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     }
 
     public static class OvershootInterpolator implements Interpolator {
-        private static final float DEFAULT_TENSION = 1.3f;
+        private static final float DEFAULT_TENSION = 0.9f;
         private float mTension;
 
         public OvershootInterpolator() {

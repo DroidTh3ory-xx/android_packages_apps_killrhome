@@ -275,7 +275,7 @@ public final class Launcher extends Activity
 
     // Determines how long to wait after a rotation before restoring the screen orientation to
     // match the sensor state.
-    private static final int RESTORE_SCREEN_ORIENTATION_DELAY = 500;
+    private static final int RESTORE_SCREEN_ORIENTATION_DELAY = 350;
 
     // External icons saved in case of resource changes, orientation, etc.
     private static Drawable.ConstantState[] sGlobalSearchIcon = new Drawable.ConstantState[2];
