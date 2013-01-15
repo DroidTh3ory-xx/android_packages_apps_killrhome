@@ -68,7 +68,6 @@ public class Preferences extends PreferenceActivity
     @Override
     public void onBuildHeaders(List<Header> target) {
         loadHeadersFromResource(R.xml.preferences_headers, target);
-
         updateHeaders(target);
     }
 
